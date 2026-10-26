@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreshGo Market — Identifikasi Komponen Data</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f8ef;
+      color: #183b2a;
+    }
+    header {
+      text-align: center;
+      padding: 30px 18px 24px;
+      color: white;
+      background: linear-gradient(120deg, #176b43, #218653);
+    }
+    header .brand { font-size: 15px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; opacity: .9; }
+    h1 { margin: 10px 0 8px; font-size: clamp(25px, 4vw, 38px); }
+    header p { margin: 0; font-size: 16px; color: #e7f6e9; }
+    main { max-width: 1100px; margin: 28px auto; padding: 0 18px 40px; }
+    .intro {
+      background: white; border: 1px solid #d7e7d8; border-radius: 16px;
+      padding: 18px 20px; margin-bottom: 20px; line-height: 1.6;
+      box-shadow: 0 4px 14px #153b2510;
+    }
+    .entity-list {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 12px; margin-bottom: 20px;
+    }
+    .entity-button {
+      border: 2px solid #d7e7d8; background: white; border-radius: 14px;
+      padding: 16px 12px; color: #24563a; font-weight: 700; font-size: 16px;
+      cursor: pointer; transition: .18s; min-height: 86px;
+    }
+    .entity-button .emoji { display: block; font-size: 25px; margin-bottom: 7px; }
+    .entity-button:hover { transform: translateY(-2px); border-color: #4a9b67; }
+    .entity-button.active { background: #1c7849; color: white; border-color: #1c7849; box-shadow: 0 5px 14px #1c784933; }
+    .details {
+      background: white; border: 1px solid #d7e7d8; border-radius: 18px;
+      overflow: hidden; box-shadow: 0 5px 18px #153b2510;
+    }
+    .details-head { padding: 22px 24px; background: #e6f4e7; border-bottom: 1px solid #d7e7d8; }
+    .details-head h2 { margin: 0 0 7px; color: #176b43; font-size: 25px; }
+    .details-head p { margin: 0; color: #476553; line-height: 1.5; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 560px; }
+    th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid #e5eee5; }
+    th { background: #f4f8f2; font-size: 13px; color: #456650; text-transform: uppercase; letter-spacing: .4px; }
+    td { font-size: 14px; }
+    tr:last-child td { border-bottom: none; }
+    code { background: #f0f5ed; padding: 4px 7px; border-radius: 6px; color: #185e39; font-size: 13px; }
+    .key { display: inline-block; padding: 5px 8px; background: #fff1c9; color: #805a00; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    .note { padding: 16px 22px; border-top: 1px solid #e5eee5; color: #526a58; font-size: 13px; line-height: 1.6; }
+    footer { text-align: center; padding: 0 15px 28px; color: #6b8270; font-size: 12px; }
+    @media (max-width: 520px) {
+      main { margin-top: 18px; padding: 0 12px 28px; }
+      .details-head { padding: 18px; }
+      th, td { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">FreshGo Market</div>
+    <h1>Identifikasi Komponen Data</h1>
+    <p>Entity · Atribut · Domain · Identifier</p>
+  </header>
+
+  <main>
+    <section class="intro">
+      <strong>Cara menggunakan:</strong> klik salah satu entity di bawah. Daftar atribut, domain (tipe data), dan identifier akan ditampilkan. Pilih entity lain untuk melihat komponennya.
+    </section>
+
+    <nav class="entity-list" aria-label="Pilih entity">
+      <button class="entity-button active" data-entity="pelanggan" aria-pressed="true"><span class="emoji">🧑</span>Pelanggan</button>
+      <button class="entity-button" data-entity="produk" aria-pressed="false"><span class="emoji">🥬</span>Produk</button>
+      <button class="entity-button" data-entity="pesanan" aria-pressed="false"><span class="emoji">🛒</span>Pesanan</button>
+      <button class="entity-button" data-entity="pembayaran" aria-pressed="false"><span class="emoji">💳</span>Pembayaran</button>
+      <button class="entity-button" data-entity="pengiriman" aria-pressed="false"><span class="emoji">🚚</span>Pengiriman</button>
+    </nav>
+
+    <section class="details" aria-live="polite">
+      <div class="details-head">
+        <h2 id="entity-title">Pelanggan</h2>
+        <p id="entity-description">Orang yang membeli produk di FreshGo Market.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>No.</th><th>Atribut</th><th>Domain / Tipe Data</th><th>Identifier?</th></tr></thead>
+          <tbody id="attribute-rows"></tbody>
+        </table>
+      </div>
+      <div class="note" id="entity-note"></div>
+    </section>
+  </main>
+
+  <footer>FreshGo Market · Contoh rancangan komponen data untuk tugas database</footer>
+
+  <script>
+    const entities = {
+      pelanggan: {
+        title: "Pelanggan",
+        description: "Orang yang membeli produk di FreshGo Market.",
+        identifier: "ID_Pelanggan",
+        note: "Identifier / Primary Key: ID_Pelanggan. Kode unik ini membedakan satu pelanggan dari pelanggan lainnya.",
+        attributes: [
+          ["ID_Pelanggan", "VARCHAR(10)", "Kode unik pelanggan"],
+          ["Nama_Pelanggan", "VARCHAR(100)", "Nama pelanggan"],
+          ["Nomor_HP", "VARCHAR(15)", "Nomor telepon"],
+          ["Alamat", "VARCHAR(200)", "Alamat pelanggan"],
+          ["Tanggal_Daftar", "DATE", "Tanggal bergabung"]
+        ]
+      },
+      produk: {
+        title: "Produk",
+        description: "Barang yang dijual di FreshGo Market, seperti sayuran, buah, dan frozen food.",
+        identifier: "ID_Produk",
+        note: "Identifier / Primary Key: ID_Produk. Kode unik ini membedakan setiap produk.",
+        attributes: [
+          ["ID_Produk", "VARCHAR(10)", "Kode unik produk"],
+          ["Nama_Produk", "VARCHAR(100)", "Nama produk"],
+          ["Kategori", "VARCHAR(30)", "Kategori produk"],
+          ["Harga", "DECIMAL(12,2)", "Harga produk"],
+          ["Stok", "INT", "Jumlah stok"]
+        ]
+      },
+      pesanan: {
+        title: "Pesanan",
+        description: "Catatan pembelian produk yang dibuat oleh pelanggan.",
+        identifier: "ID_Pesanan",
+        note: "Identifier / Primary Key: ID_Pesanan. Kode unik ini membedakan setiap pesanan.",
+        attributes: [
+          ["ID_Pesanan", "VARCHAR(15)", "Kode unik pesanan"],
+          ["Tanggal_Pesanan", "DATETIME", "Tanggal dan waktu pesanan dibuat"],
+          ["Jumlah_Item", "INT", "Jumlah jenis barang dalam pesanan"],
+          ["Total_Harga", "DECIMAL(12,2)", "Total nilai pesanan"],
+          ["Status_Pesanan", "VARCHAR(20)", "Menunggu, diproses, selesai, atau dibatalkan"]
+        ]
+      },
+      pembayaran: {
+        title: "Pembayaran",
+        description: "Catatan pembayaran atas pesanan pelanggan.",
+        identifier: "ID_Pembayaran",
+        note: "Identifier / Primary Key: ID_Pembayaran. Kode unik ini membedakan setiap transaksi pembayaran.",
+        attributes: [
+          ["ID_Pembayaran", "VARCHAR(15)", "Kode unik pembayaran"],
+          ["Tanggal_Pembayaran", "DATETIME", "Tanggal dan waktu pembayaran"],
+          ["Nominal_Bayar", "DECIMAL(12,2)", "Jumlah uang yang dibayarkan"],
+          ["Metode_Pembayaran", "VARCHAR(30)", "Transfer, e-wallet, tunai, dan lainnya"],
+          ["Status_Pembayaran", "VARCHAR(20)", "Belum lunas, lunas, atau gagal"]
+        ]
+      },
+      pengiriman: {
+        title: "Pengiriman",
+        description: "Catatan proses pengantaran pesanan kepada pelanggan.",
+        identifier: "ID_Pengiriman",
+        note: "Identifier / Primary Key: ID_Pengiriman. Kode unik ini membedakan setiap pengiriman.",
+        attributes: [
+          ["ID_Pengiriman", "VARCHAR(15)", "Kode unik pengiriman"],
+          ["Alamat_Tujuan", "VARCHAR(200)", "Alamat tujuan pengiriman"],
+          ["Tanggal_Kirim", "DATETIME", "Tanggal dan waktu pengiriman"],
+          ["Nomor_Resi", "VARCHAR(30)", "Nomor resi jika tersedia"],
+          ["Status_Pengiriman", "VARCHAR(20)", "Menunggu, dikirim, diterima, atau gagal"]
+        ]
+      }
+    };
+
+    const title = document.getElementById("entity-title");
+    const description = document.getElementById("entity-description");
+    const rows = document.getElementById("attribute-rows");
+    const note = document.getElementById("entity-note");
+    const buttons = document.querySelectorAll(".entity-button");
+
+    function showEntity(key) {
+      const entity = entities[key];
+      title.textContent = entity.title;
+      description.textContent = entity.description;
+      note.textContent = entity.note;
+      rows.innerHTML = "";
+
+      entity.attributes.forEach((attribute, index) => {
+        const row = document.createElement("tr");
+        const isIdentifier = attribute[0] === entity.identifier;
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><strong>${attribute[0]}</strong></td>
+          <td><code>${attribute[1]}</code><br><span>${attribute[2]}</span></td>
+          <td>${isIdentifier ? '<span class="key">Primary Key</span>' : '—'}</td>
+        `;
+        rows.appendChild(row);
+      });
+
+      buttons.forEach(button => {
+        const active = button.dataset.entity === key;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => showEntity(button.dataset.entity));
+    });
+
+    showEntity("pelanggan");
+  </script>
+</body>
+</html>
